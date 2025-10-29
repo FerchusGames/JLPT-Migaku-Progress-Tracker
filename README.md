@@ -1,4 +1,4 @@
-# JLPT-Migaku-Memory-Progress-Tracker
+# JLPT-Migaku-Progress-Tracker
 
 A small Python tool that visualizes your Japanese vocabulary progress using data from [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter).  
 
@@ -16,7 +16,7 @@ It compares your exported Migaku wordlists with a JLPT vocabulary file and shows
 ## Folder structure
 
 ```
-migaku-memory-jlpt-progress-tracker/
+JLPT_Progress_NX/
 │
 ├── JLPT_Vocab.json
 ├── jlpt_progress.py
@@ -40,7 +40,7 @@ Follow the setup instructions on that repository before running this tool.
 
 ### 2. Download the tracker
 
-Download and extract your desired JLPT X level [JLPT_Progress_NX.zip](https://github.com/FerchusGames/migaku-memory-jlpt-n1-progress-tracker/releases/tag/Release).
+Download and extract your desired JLPT X level [JLPT_Progress_NX.zip](https://github.com/FerchusGames/JLPT-Migaku-Progress-Tracker/releases/tag/Release).
 
 <img width="1352" height="707" alt="msedge_1gwSTiHJTr" src="https://github.com/user-attachments/assets/c71bd020-a323-46eb-a779-71825df66ee8" />
 
