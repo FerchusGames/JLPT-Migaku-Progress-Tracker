@@ -40,7 +40,7 @@ Follow the setup instructions on that repository before running this tool.
 
 ### 2. Download the tracker
 
-Download and extract [JLPT_N1_Progress_Tracker.zip](https://github.com/FerchusGames/migaku-memory-jlpt-n1-progress-tracker/releases/tag/Release).
+Download and extract your desired JLPT Level [Progress Tracker.zip](https://github.com/FerchusGames/migaku-memory-jlpt-n1-progress-tracker/releases/tag/Release).
 
 ## Usage
 
