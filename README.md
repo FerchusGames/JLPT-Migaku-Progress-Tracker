@@ -6,12 +6,12 @@ It compares your exported Migaku wordlists with a JLPT vocabulary file and shows
 
 ## Features
 
-• Shows your JLPT vocabulary progress as a pie chart  
+• Shows your JLPT vocabulary progress as a pie chart.  
 • Copies the a list of unknown words to your clipboard for quick review with Migaku Clipboard (Great for generating AI sentence cards when you haven’t hit your daily quota).
-• Treats words in `ignored.csv` as known  
-• Automatically installs required libraries if missing  
-• Exports all unknown JLPT words to `unknown_words.csv`  
-• Aborts if a required file is missing  
+• Treats words in `ignored.csv` as known.  
+• Automatically installs required libraries if missing.  
+• Exports all unknown JLPT words to `unknown_words.csv`.  
+• Aborts if a required file is missing.  
 
 ## Folder structure
 
@@ -30,6 +30,10 @@ migaku-memory-jlpt-progress-tracker/
 └── progress_chart.png
 ```
 
+## Installation
+
+Download and extract [JLPT_N1_Progress_Tracker.zip](https://github.com/FerchusGames/migaku-memory-jlpt-n1-progress-tracker/releases/tag/Release).
+
 ## Usage
 
 Export your Migaku wordlists using [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and place them inside the `wordlists/` folder.
@@ -41,11 +45,11 @@ python app.py
 ```
 
 It will:
-- Install the necessary libraries
-- Check that the required files exist  
-- Generate a pie chart (`progress_chart.png`)  
-- Save your unknown words to `unknown_words.csv`  
-- Copy the first 500 unknown words to your clipboard  
+- Install the necessary libraries.
+- Check that the required files exist.  
+- Generate a pie chart (`progress_chart.png`).  
+- Save your unknown words to `unknown_words.csv`.  
+- Copy the first 500 unknown words to your clipboard. 
 
 Example output:
 
@@ -66,7 +70,7 @@ Chart saved to: progress_chart.png
 - matplotlib: chart generation  
 - pyperclip: clipboard support  
 
-(both will be installed automatically if missing)
+Both will be installed automatically if missing.
 
 ## Notes
 
