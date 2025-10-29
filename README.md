@@ -1,4 +1,4 @@
-# migaku-memory-jlpt-n1-progress-tracker
+# migaku-memory-jlpt-progress-tracker
 
 A small Python tool that visualizes your Japanese vocabulary progress using data from [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter).  
 
