@@ -32,6 +32,14 @@ migaku-memory-jlpt-progress-tracker/
 
 ## Installation
 
+### 1. Install the Migaku Anki Exporter
+
+You must have [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) installed and configured.  
+This exporter generates the `known.csv`, `learning.csv`, and `ignored.csv` files that this tracker uses.  
+Follow the setup instructions on that repository before running this tool.
+
+### 2. Download the tracker
+
 Download and extract [JLPT_N1_Progress_Tracker.zip](https://github.com/FerchusGames/migaku-memory-jlpt-n1-progress-tracker/releases/tag/Release).
 
 ## Usage
