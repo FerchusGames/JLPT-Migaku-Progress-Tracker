@@ -81,5 +81,6 @@ If you find it useful, feel free to improve or extend it.
 
 ## Acknowledgements
 
-- [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) for the export data  
-- [Migaku](https://www.migaku.io/) for the language-learning tools that inspired this project
+- [stephenmk/yomitan-jlpt-vocab](https://github.com/stephenmk/yomitan-jlpt-vocab) for the vocab list.
+- [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) for the export data. 
+- [Migaku](https://migaku.com/) for the language-learning tools that inspired this project.
