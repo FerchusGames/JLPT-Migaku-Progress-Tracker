@@ -7,7 +7,7 @@ It compares your exported Migaku wordlists with a JLPT vocabulary file and shows
 ## Features
 
 • Shows your JLPT vocabulary progress as a pie chart.  
-• Copies the a list of unknown words to your clipboard for quick review with Migaku Clipboard (Great for generating AI sentence cards when you haven’t hit your daily quota).
+• Copies the a list of unknown words to your clipboard for quick review with Migaku Clipboard (Great for generating AI sentence cards when you haven’t hit your daily quota or for those last remaining words that are tricky to find).
 • Treats words in `ignored.csv` as known.  
 • Automatically installs required libraries if missing.  
 • Exports all unknown JLPT words to `unknown_words.csv`.  
