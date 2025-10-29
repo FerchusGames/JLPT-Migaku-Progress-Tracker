@@ -4,6 +4,10 @@ A small Python tool that visualizes your Japanese vocabulary progress using data
 
 It compares your exported Migaku wordlists with a JLPT vocabulary file and shows how many words you know, are learning, or haven’t learned yet.
 
+##  Pairs well with
+### ⭐ [JLPT-Migaku-Frequency-List](https://github.com/FerchusGames/JLPT-Migaku-Frequency-List) ⭐ 
+A JLPT frequency list compatible with the new Migaku extension sourced from stephenmk's meta dictionary for Yomitan.
+
 ## Features
 
 • Shows your JLPT vocabulary progress as a pie chart.  
