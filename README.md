@@ -73,7 +73,14 @@ Unknown words saved to: unknown_words.csv
 Chart saved to: progress_chart.png
 ```
 
+Chart:
+
 <img width="594" height="510" alt="progress_chart" src="https://github.com/user-attachments/assets/c6813a83-798d-42b8-a546-b7029a92d261" />
+
+Unknown words pasted in Migaku Clipboard:
+
+<img width="250" height="472" alt="image" src="https://github.com/user-attachments/assets/a19fe1ab-2b21-4300-8492-faadaaad998c" />
+
 
 ## Dependencies
 
