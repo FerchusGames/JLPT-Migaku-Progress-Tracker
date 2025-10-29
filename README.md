@@ -42,6 +42,8 @@ Follow the setup instructions on that repository before running this tool.
 
 Download and extract your desired JLPT X level [JLPT_Progress_NX.zip](https://github.com/FerchusGames/migaku-memory-jlpt-n1-progress-tracker/releases/tag/Release).
 
+<img width="1352" height="707" alt="msedge_1gwSTiHJTr" src="https://github.com/user-attachments/assets/c71bd020-a323-46eb-a779-71825df66ee8" />
+
 ## Usage
 
 Export your Migaku wordlists using [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and place them inside the `wordlists/` folder.
