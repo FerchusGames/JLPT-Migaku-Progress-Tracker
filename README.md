@@ -71,7 +71,7 @@ Example output:
 
 ```
 📋 First 500 unknown words copied to clipboard (out of 3765 total).
-✅ Total JLPT words: 8127
+✅ Total JLPT N1 words: 8127
 Known (including Ignored): 4048
 Learning: 314
 Unknown: 3765
