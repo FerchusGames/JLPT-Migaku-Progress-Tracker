@@ -1,5 +1,5 @@
 # --- Auto-install required libraries if missing ---
-import importlib
+import importlib.util
 import subprocess
 import sys
 
@@ -138,7 +138,7 @@ def run(
         autopct=lambda pct: fmt(pct, sizes),
         colors=colors,
     )
-    plt.title("JLPT N1 Progress (Ignored count as Known)")
+    plt.title("JLPT Progress N1 (Ignored count as Known)")
     plt.axis("equal")
     plt.savefig(save_chart, bbox_inches="tight", dpi=200)
 
