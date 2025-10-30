@@ -50,7 +50,9 @@ Download and extract your desired JLPT X level [JLPT_Progress_NX.zip](https://gi
 
 ## Usage
 
-Export your Migaku wordlists using [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and place them inside the `wordlists/` folder.
+Export and extract your Migaku wordlists ```.csv``` files using [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and place them inside the `wordlists/` folder.
+
+<img width="720" height="458" alt="msedge_RXSNqL497F" src="https://github.com/user-attachments/assets/353bad68-1520-4957-ad8d-dbf8a3ca6449" />
 
 Run the script from your terminal:
 
