@@ -298,10 +298,6 @@
             margin-bottom: 0;
         }
 
-        .jlpt-control-row > .jlpt-button:only-child {
-            width: 100%;
-        }
-
         .jlpt-input {
             flex: 1;
             background: var(--background-elevation-1, #2a2a2a);
@@ -357,6 +353,27 @@
 
         .jlpt-status-message.error {
             color: #F44336;
+        }
+
+        .jlpt-checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .jlpt-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ff8b29;
+        }
+
+        .jlpt-checkbox-label {
+            font-size: 14px;
+            color: var(--text-color-secondary, #aaa);
+            cursor: pointer;
+            user-select: none;
         }
     `);
 
@@ -633,8 +650,8 @@
         return results;
     };
 
-    // Get unknown words (excluding tracked words)
-    const getUnknownWords = (jlptRows, wordList, additionalWords = null) => {
+    // Get unknown words (optionally excluding tracked words)
+    const getUnknownWords = (jlptRows, wordList, additionalWords = null, includeTracked = false) => {
         // Build term sets
         const knownTerms = new Set();
         const learningTerms = new Set();
@@ -673,7 +690,7 @@
         // Treat ignored as known
         const allKnownTerms = new Set([...knownTerms, ...ignoredTerms]);
 
-        // Find unknown words (excluding tracked)
+        // Find unknown words
         const unknownWords = [];
         for (const row of jlptRows) {
             const aliases = new Set([row.surface, row.reading].filter(t => t));
@@ -683,7 +700,8 @@
             const isLearning = [...aliases].some(alias => learningTerms.has(alias));
             const isTracked = [...aliases].some(alias => trackedTerms.has(alias));
 
-            if (!isKnown && !isLearning && !isTracked) {
+            // If includeTracked is false, exclude tracked words
+            if (!isKnown && !isLearning && (includeTracked || !isTracked)) {
                 unknownWords.push({ surface: row.surface, reading: row.reading });
             }
         }
@@ -692,7 +710,7 @@
     };
 
     // Copy unknown words to clipboard
-    const copyUnknownWordsToClipboard = async (unknownWords, limit = 100) => {
+    const copyUnknownWordsToClipboard = async (unknownWords, limit = 500) => {
         const wordsToClip = unknownWords.slice(0, limit);
         const text = wordsToClip.map(w => `${w.surface}\t${w.reading}`).join('\n');
 
@@ -839,7 +857,11 @@
 
                     <div class="jlpt-controls">
                         <div class="jlpt-control-row">
-                            <button id="copyUnknownBtn" class="jlpt-button">Copy 100 Unknown Words</button>
+                            <button id="copyUnknownBtn" class="jlpt-button">Copy 500 Unknown Words</button>
+                            <label class="jlpt-checkbox-wrapper">
+                                <input type="checkbox" id="includeTrackedCheckbox" class="jlpt-checkbox">
+                                <span class="jlpt-checkbox-label">Include tracked</span>
+                            </label>
                         </div>
                         <div class="jlpt-control-row">
                             <label class="jlpt-label">JSON URL:</label>
@@ -875,15 +897,17 @@
             // Add copy unknown words handler
             container.querySelector('#copyUnknownBtn').addEventListener('click', async () => {
                 const statusMsg = container.querySelector('#statusMessage');
+                const includeTracked = container.querySelector('#includeTrackedCheckbox').checked;
 
-                // Get unknown words (tracked words are automatically excluded from the database)
-                const unknownWords = getUnknownWords(jlptRows, wordList, additionalWords);
+                // Get unknown words (optionally including tracked words based on checkbox)
+                const unknownWords = getUnknownWords(jlptRows, wordList, additionalWords, includeTracked);
 
                 // Copy to clipboard
-                const result = await copyUnknownWordsToClipboard(unknownWords, 100);
+                const result = await copyUnknownWordsToClipboard(unknownWords, 500);
 
                 if (result.success) {
-                    statusMsg.textContent = `📋 Copied ${result.count} unknown words to clipboard (out of ${result.total} total)`;
+                    const trackedMsg = includeTracked ? ' (including tracked)' : ' (excluding tracked)';
+                    statusMsg.textContent = `📋 Copied ${result.count} unknown words to clipboard${trackedMsg} (out of ${result.total} total)`;
                     statusMsg.className = 'jlpt-status-message success';
                 } else {
                     statusMsg.textContent = `❌ Error: ${result.error}`;
