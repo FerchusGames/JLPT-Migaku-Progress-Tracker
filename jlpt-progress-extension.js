@@ -278,6 +278,86 @@
             margin-bottom: 12px;
             font-size: 18px;
         }
+
+        /* Controls section */
+        .jlpt-controls {
+            background: var(--background-elevation-2, #333);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .jlpt-control-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .jlpt-control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .jlpt-control-row > .jlpt-button:only-child {
+            width: 100%;
+        }
+
+        .jlpt-input {
+            flex: 1;
+            background: var(--background-elevation-1, #2a2a2a);
+            border: 1px solid var(--border-color, #444);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text-color, #ffffff);
+            font-size: 14px;
+        }
+
+        .jlpt-input:focus {
+            outline: none;
+            border-color: #ff8b29;
+        }
+
+        .jlpt-button {
+            background: linear-gradient(to bottom, #ff8b29, #f42768);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .jlpt-button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        .jlpt-button:active {
+            transform: translateY(0);
+        }
+
+        .jlpt-label {
+            font-size: 14px;
+            color: var(--text-color-secondary, #aaa);
+            min-width: 120px;
+        }
+
+        .jlpt-status-message {
+            font-size: 13px;
+            color: var(--text-color-secondary, #aaa);
+            margin-top: 8px;
+        }
+
+        .jlpt-status-message.success {
+            color: #4CAF50;
+        }
+
+        .jlpt-status-message.error {
+            color: #F44336;
+        }
     `);
 
     // Database functions
@@ -332,7 +412,7 @@
     };
 
     const fetchWordListForLang = (db, lang) => {
-        const query = "SELECT dictForm, secondary, knownStatus, del FROM WordList WHERE language=?";
+        const query = "SELECT dictForm, secondary, knownStatus, del, tracked FROM WordList WHERE language=?";
         const result = db.exec(query, [lang]);
         if (!result || result.length === 0) return [];
 
@@ -342,7 +422,8 @@
                 dictForm: row[0],
                 secondary: row[1],
                 knownStatus: row[2],
-                del: row[3] !== 0
+                del: row[3] !== 0,
+                tracked: row[4] !== 0
             });
         }
         return words;
@@ -369,6 +450,69 @@
         } catch (error) {
             console.error('Error loading JLPT vocab:', error);
             return null;
+        }
+    };
+
+    // Load additional words from jsonbin.io
+    const loadAdditionalWordsFromJsonbin = async (jsonbinUrl) => {
+        if (!jsonbinUrl || jsonbinUrl.trim() === '') {
+            return { known: new Set(), ignored: new Set() };
+        }
+
+        try {
+            const response = await fetch(jsonbinUrl);
+            if (!response.ok) throw new Error('Failed to load from jsonbin.io');
+
+            let data = await response.json();
+
+            // Handle JSONBin.io v3 API response format (has a "record" wrapper)
+            if (data.record) {
+                data = data.record;
+            }
+
+            const knownSet = new Set();
+            const ignoredSet = new Set();
+
+            // Handle different JSON formats:
+            if (Array.isArray(data)) {
+                // Format 1: Simple array ["word1", "word2", "word3"] - treat all as known
+                data.forEach(word => {
+                    if (typeof word === 'string' && word.trim()) {
+                        knownSet.add(word.trim());
+                    }
+                });
+            } else if (typeof data === 'object') {
+                // Format 2: Object with "known" and/or "ignored" arrays
+                if (data.known && Array.isArray(data.known)) {
+                    data.known.forEach(word => {
+                        if (typeof word === 'string' && word.trim()) {
+                            knownSet.add(word.trim());
+                        }
+                    });
+                }
+                if (data.ignored && Array.isArray(data.ignored)) {
+                    data.ignored.forEach(word => {
+                        if (typeof word === 'string' && word.trim()) {
+                            ignoredSet.add(word.trim());
+                        }
+                    });
+                }
+
+                // Format 3: Object with just "words" array - treat all as known
+                if (data.words && Array.isArray(data.words)) {
+                    data.words.forEach(word => {
+                        if (typeof word === 'string' && word.trim()) {
+                            knownSet.add(word.trim());
+                        }
+                    });
+                }
+            }
+
+            console.log(`✅ Loaded ${knownSet.size} additional known words and ${ignoredSet.size} ignored words from JSONBin`);
+            return { known: knownSet, ignored: ignoredSet };
+        } catch (error) {
+            console.error('❌ Error loading additional words from jsonbin.io:', error);
+            return { known: new Set(), ignored: new Set() };
         }
     };
 
@@ -410,7 +554,7 @@
     };
 
     // Calculate progress (matches app.py logic)
-    const calculateProgress = (jlptRows, levelIndices, wordList) => {
+    const calculateProgress = (jlptRows, levelIndices, wordList, additionalWords = null) => {
         // Build term sets
         const knownTerms = new Set();
         const learningTerms = new Set();
@@ -432,6 +576,12 @@
                     terms.forEach(t => ignoredTerms.add(t));
                     break;
             }
+        }
+
+        // Add additional words from jsonbin.io if provided
+        if (additionalWords) {
+            additionalWords.known.forEach(t => knownTerms.add(t));
+            additionalWords.ignored.forEach(t => ignoredTerms.add(t));
         }
 
         // Treat ignored as known
@@ -481,6 +631,78 @@
         }
 
         return results;
+    };
+
+    // Get unknown words (excluding tracked words)
+    const getUnknownWords = (jlptRows, wordList, additionalWords = null) => {
+        // Build term sets
+        const knownTerms = new Set();
+        const learningTerms = new Set();
+        const ignoredTerms = new Set();
+        const trackedTerms = new Set();
+
+        for (const word of wordList) {
+            if (word.del) continue;
+
+            const terms = [word.dictForm, word.secondary].filter(t => t && t.trim());
+
+            switch (word.knownStatus) {
+                case 'KNOWN':
+                    terms.forEach(t => knownTerms.add(t));
+                    break;
+                case 'LEARNING':
+                    terms.forEach(t => learningTerms.add(t));
+                    break;
+                case 'IGNORED':
+                    terms.forEach(t => ignoredTerms.add(t));
+                    break;
+            }
+
+            // Track words marked as tracked
+            if (word.tracked) {
+                terms.forEach(t => trackedTerms.add(t));
+            }
+        }
+
+        // Add additional words from jsonbin.io if provided
+        if (additionalWords) {
+            additionalWords.known.forEach(t => knownTerms.add(t));
+            additionalWords.ignored.forEach(t => ignoredTerms.add(t));
+        }
+
+        // Treat ignored as known
+        const allKnownTerms = new Set([...knownTerms, ...ignoredTerms]);
+
+        // Find unknown words (excluding tracked)
+        const unknownWords = [];
+        for (const row of jlptRows) {
+            const aliases = new Set([row.surface, row.reading].filter(t => t));
+
+            // Check if word is not known and not learning
+            const isKnown = [...aliases].some(alias => allKnownTerms.has(alias));
+            const isLearning = [...aliases].some(alias => learningTerms.has(alias));
+            const isTracked = [...aliases].some(alias => trackedTerms.has(alias));
+
+            if (!isKnown && !isLearning && !isTracked) {
+                unknownWords.push({ surface: row.surface, reading: row.reading });
+            }
+        }
+
+        return unknownWords;
+    };
+
+    // Copy unknown words to clipboard
+    const copyUnknownWordsToClipboard = async (unknownWords, limit = 100) => {
+        const wordsToClip = unknownWords.slice(0, limit);
+        const text = wordsToClip.map(w => `${w.surface}\t${w.reading}`).join('\n');
+
+        try {
+            await navigator.clipboard.writeText(text);
+            return { success: true, count: wordsToClip.length, total: unknownWords.length };
+        } catch (error) {
+            console.error('Failed to copy to clipboard:', error);
+            return { success: false, error: error.message };
+        }
     };
 
     // Render UI
@@ -598,8 +820,15 @@
             // Fetch word list
             const wordList = fetchWordListForLang(db, 'ja');
 
+            // Load jsonbin URL from localStorage
+            const savedJsonbinUrl = localStorage.getItem('jlpt_jsonbin_url') || '';
+
             // Calculate progress
-            const progressData = calculateProgress(jlptRows, levelIndices, wordList);
+            let additionalWords = null;
+            if (savedJsonbinUrl) {
+                additionalWords = await loadAdditionalWordsFromJsonbin(savedJsonbinUrl);
+            }
+            const progressData = calculateProgress(jlptRows, levelIndices, wordList, additionalWords);
 
             // Render
             container.querySelector('.jlpt-progress-inner').innerHTML = `
@@ -607,11 +836,60 @@
                     <h1 class="jlpt-progress-title">JLPT Vocabulary Progress</h1>
                     ${renderSummaryCards(progressData)}
                     ${renderProgressTable(progressData)}
+
+                    <div class="jlpt-controls">
+                        <div class="jlpt-control-row">
+                            <button id="copyUnknownBtn" class="jlpt-button">Copy 100 Unknown Words</button>
+                        </div>
+                        <div class="jlpt-control-row">
+                            <label class="jlpt-label">JSON URL:</label>
+                            <input type="text" id="jsonbinUrlInput" class="jlpt-input" placeholder="https://api.jsonbin.io/v3/b/YOUR_BIN_ID/latest" value="${savedJsonbinUrl}">
+                            <button id="saveJsonbinBtn" class="jlpt-button">Save & Reload</button>
+                        </div>
+                        <div id="statusMessage" class="jlpt-status-message"></div>
+                    </div>
                 </div>
             `;
 
             // Add close button handler
             container.querySelector('#jlptCloseBtn').addEventListener('click', toggleView);
+
+            // Add jsonbin save handler
+            container.querySelector('#saveJsonbinBtn').addEventListener('click', async () => {
+                const url = container.querySelector('#jsonbinUrlInput').value.trim();
+                localStorage.setItem('jlpt_jsonbin_url', url);
+
+                const statusMsg = container.querySelector('#statusMessage');
+                statusMsg.textContent = 'Reloading with new URL...';
+                statusMsg.className = 'jlpt-status-message';
+
+                // Reload the view
+                const newContainer = await createProgressView();
+                container.replaceWith(newContainer);
+                jlptProgressContainer = newContainer;
+                if (isVisible) {
+                    jlptProgressContainer.classList.add('visible');
+                }
+            });
+
+            // Add copy unknown words handler
+            container.querySelector('#copyUnknownBtn').addEventListener('click', async () => {
+                const statusMsg = container.querySelector('#statusMessage');
+
+                // Get unknown words (tracked words are automatically excluded from the database)
+                const unknownWords = getUnknownWords(jlptRows, wordList, additionalWords);
+
+                // Copy to clipboard
+                const result = await copyUnknownWordsToClipboard(unknownWords, 100);
+
+                if (result.success) {
+                    statusMsg.textContent = `📋 Copied ${result.count} unknown words to clipboard (out of ${result.total} total)`;
+                    statusMsg.className = 'jlpt-status-message success';
+                } else {
+                    statusMsg.textContent = `❌ Error: ${result.error}`;
+                    statusMsg.className = 'jlpt-status-message error';
+                }
+            });
 
             return container;
 
