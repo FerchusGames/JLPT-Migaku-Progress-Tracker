@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JLPT Progress Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@24,400,0" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Top App Bar -->
+  <header class="app-bar">
+    <h1 class="app-bar__title">JLPT Progress Dashboard</h1>
+    <div class="app-bar__actions">
+      <button class="icon-btn" id="refreshBtn" title="Refresh data">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme">
+        <span class="material-symbols-outlined">dark_mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="content">
+    <!-- Loading overlay -->
+    <div id="loading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading data...</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="errorState" class="error-state" hidden>
+      <span class="material-symbols-outlined error-icon">error</span>
+      <p id="errorMessage">Could not connect to the server.</p>
+      <button class="btn btn--filled" onclick="location.reload()">Retry</button>
+    </div>
+
+    <!-- Dashboard content -->
+    <div id="dashboard" hidden>
+      <!-- Summary Cards -->
+      <section class="summary-section">
+        <div class="summary-toggle">
+          <label class="switch-label">
+            <span>Count ignored as known</span>
+            <label class="switch">
+              <input type="checkbox" id="ignoredToggle" checked>
+              <span class="switch__track"></span>
+            </label>
+          </label>
+        </div>
+        <div class="summary-grid">
+          <div class="card summary-card summary-card--known">
+            <div class="summary-card__label">Known</div>
+            <div class="summary-card__value" id="summaryKnown">-</div>
+            <div class="summary-card__sub" id="summaryKnownPct">-</div>
+          </div>
+          <div class="card summary-card summary-card--learning">
+            <div class="summary-card__label">Learning</div>
+            <div class="summary-card__value" id="summaryLearning">-</div>
+            <div class="summary-card__sub" id="summaryLearningPct">-</div>
+          </div>
+          <div class="card summary-card summary-card--unknown">
+            <div class="summary-card__label">Unknown</div>
+            <div class="summary-card__value" id="summaryUnknown">-</div>
+            <div class="summary-card__sub" id="summaryUnknownPct">-</div>
+          </div>
+          <div class="card summary-card summary-card--total">
+            <div class="summary-card__label">Overall Progress</div>
+            <div class="summary-card__value" id="summaryProgress">-</div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" id="summaryProgressBar"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress Table -->
+      <section class="card table-section">
+        <div class="table-header">
+          <h2>Progress by Level</h2>
+          <div class="tab-bar">
+            <button class="tab tab--active" data-mode="cumulative">Cumulative</button>
+            <button class="tab" data-mode="perLevel">Per Level Only</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="progress-table">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Total</th>
+                <th>Known</th>
+                <th>Ignored</th>
+                <th>Learning</th>
+                <th>Unknown</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+            <tbody id="progressTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="charts-section">
+        <div class="card chart-card">
+          <h2>Overall Breakdown</h2>
+          <canvas id="donutChart" width="300" height="300"></canvas>
+          <div id="donutLegend" class="chart-legend"></div>
+        </div>
+        <div class="card chart-card">
+          <h2>Per-Level Composition</h2>
+          <canvas id="barChart" width="500" height="300"></canvas>
+          <div id="barLegend" class="chart-legend"></div>
+        </div>
+      </section>
+
+      <!-- Export Panel -->
+      <section class="card export-section">
+        <h2>Export Words</h2>
+        <div class="export-controls">
+          <div class="filter-group">
+            <label class="filter-label">Categories</label>
+            <div class="chip-set">
+              <button class="chip chip--active" data-category="known">Known</button>
+              <button class="chip chip--active" data-category="learning">Learning</button>
+              <button class="chip chip--active" data-category="ignored">Ignored</button>
+              <button class="chip chip--active" data-category="unknown">Unknown</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="filter-label" for="exportLevel">Level</label>
+              <select id="exportLevel" class="select-field">
+                <option value="N5">N5</option>
+                <option value="N4">N4</option>
+                <option value="N3">N3</option>
+                <option value="N2">N2</option>
+                <option value="N1">N1</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="switch-label">
+                <span>Include lower levels</span>
+                <label class="switch">
+                  <input type="checkbox" id="exportCumulative">
+                  <span class="switch__track"></span>
+                </label>
+              </label>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="exportLimit">Max Words</label>
+              <input type="number" id="exportLimit" class="text-field" placeholder="All" min="1">
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="switch-label">
+                <span>Katakana only</span>
+                <label class="switch">
+                  <input type="checkbox" id="exportKatakana">
+                  <span class="switch__track"></span>
+                </label>
+              </label>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label" for="exportTracked">Tracked</label>
+              <select id="exportTracked" class="select-field">
+                <option value="include">Include</option>
+                <option value="exclude">Exclude</option>
+                <option value="only">Only Tracked</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label class="switch-label">
+                <span>Random order (clipboard)</span>
+                <label class="switch">
+                  <input type="checkbox" id="exportRandom">
+                  <span class="switch__track"></span>
+                </label>
+              </label>
+            </div>
+          </div>
+          <div class="export-preview">
+            <span id="previewCount">- words match your filters</span>
+          </div>
+          <div class="export-actions">
+            <button class="btn btn--filled" id="copyBtn">
+              <span class="material-symbols-outlined">content_copy</span> Copy to Clipboard
+            </button>
+            <button class="btn btn--outlined" id="downloadCsvBtn">
+              <span class="material-symbols-outlined">download</span> Download CSV
+            </button>
+            <button class="btn btn--outlined" id="downloadJsonBtn">
+              <span class="material-symbols-outlined">download</span> Download JSON
+            </button>
+          </div>
+          <div id="exportStatus" class="export-status" hidden></div>
+        </div>
+      </section>
+
+      <!-- Word Browser -->
+      <section class="card browser-section">
+        <h2>Word Browser</h2>
+        <div class="browser-controls">
+          <div class="search-field-wrap">
+            <span class="material-symbols-outlined">search</span>
+            <input type="text" id="browserSearch" class="text-field" placeholder="Search words...">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="word-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Surface</th>
+                <th>Reading</th>
+                <th>Level</th>
+                <th>Category</th>
+              </tr>
+            </thead>
+            <tbody id="wordTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Snackbar -->
+  <div id="snackbar" class="snackbar"></div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
