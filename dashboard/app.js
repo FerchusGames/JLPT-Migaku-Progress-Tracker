@@ -614,7 +614,7 @@ function renderPagination(totalPages) {
 async function copyToClipboard() {
   let words = state.filteredWords;
   if (state.exportRandom) {
-    words = shuffleWithTimeSeed(words);
+    words = shuffleGroupedByReading(words);
   }
   const text = words.map((w) => `${w.surface}\t${w.reading}`).join("\n");
   try {
@@ -626,7 +626,7 @@ async function copyToClipboard() {
   }
 }
 
-function shuffleWithTimeSeed(arr) {
+function shuffleGroupedByReading(arr) {
   let seed = (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
   const rand = () => {
     seed = (seed + 0x6D2B79F5) >>> 0;
@@ -635,10 +635,23 @@ function shuffleWithTimeSeed(arr) {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
-  const out = arr.slice();
-  for (let i = out.length - 1; i > 0; i--) {
+  const groups = new Map();
+  const order = [];
+  for (const w of arr) {
+    const key = w.reading;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+      order.push(key);
+    }
+    groups.get(key).push(w);
+  }
+  for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  const out = [];
+  for (const key of order) {
+    for (const w of groups.get(key)) out.push(w);
   }
   return out;
 }
