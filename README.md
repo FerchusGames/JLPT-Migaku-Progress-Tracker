@@ -44,7 +44,21 @@ JLPT_Progress_NX/
 
 ## Installation
 
+### 1. Install the Migaku Anki Exporter
+
 Install the [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and follow its setup instructions. It generates the `known.csv`, `learning.csv`, and `ignored.csv` files that this tracker uses.
+
+### 2. Get the tracker
+
+Either clone the repo:
+
+```
+git clone https://github.com/FerchusGames/JLPT-Migaku-Progress-Tracker.git
+```
+
+…or download the ZIP from the [GitHub page](https://github.com/FerchusGames/JLPT-Migaku-Progress-Tracker) (**Code → Download ZIP**) and extract it anywhere.
+
+You'll need Python 3 installed and on your PATH. No other dependencies are required.
 
 ## Usage
 
