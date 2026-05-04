@@ -1,21 +1,25 @@
 # JLPT-Migaku-Progress-Tracker
+<img width="720" height="458" alt="msedge_5O7q93hK9z" src="https://github.com/user-attachments/assets/f6d0e06f-12ec-42fa-851b-6baa7b5885fd" />
 
-A small Python tool that visualizes your Japanese vocabulary progress using data from [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter).  
+<img width="720" height="458" alt="msedge_Cs9JmByGO8" src="https://github.com/user-attachments/assets/a9634e6e-e856-477d-bfcd-205e4b66a895" />
 
-It compares your exported Migaku wordlists with a JLPT vocabulary file and shows how many words you know, are learning, or haven’t learned yet.
+A small Python tool that visualizes your Japanese vocabulary progress using data from [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter).
+
+It compares your exported Migaku wordlists with a JLPT vocabulary file and serves a local web dashboard that shows how many words you know, are learning, or haven't learned yet — across every JLPT level.
 
 ##  Pairs well with
-### ⭐ [JLPT-Migaku-Frequency-List](https://github.com/FerchusGames/JLPT-Migaku-Frequency-List) ⭐ 
+### ⭐ [JLPT-Migaku-Frequency-List](https://github.com/FerchusGames/JLPT-Migaku-Frequency-List) ⭐
 A JLPT frequency list compatible with the new Migaku extension sourced from stephenmk's meta dictionary for Yomitan.
 
 ## Features
 
-• Shows your JLPT vocabulary progress as a pie chart.  
-• Copies the a list of unknown words to your clipboard for quick review with Migaku Clipboard (Great for generating AI sentence cards when you haven’t hit your daily quota or for those last remaining words that are tricky to find).
-• Treats words in `ignored.csv` as known.  
-• Automatically installs required libraries if missing.  
-• Exports all unknown JLPT words to `unknown_words.csv`.  
-• Aborts if a required file is missing.  
+• Local web dashboard with summary cards, progress table, donut chart, and per-level bar chart.
+• Cumulative or per-level views, plus a toggle to count ignored words as known.
+• Word browser with search and pagination across all JLPT levels.
+• Flexible export panel: filter by category, level, katakana-only, tracked status, and limit, then copy to clipboard or download as CSV/JSON.
+• Treats words in `ignored.csv` as known and respects manual category overrides via `extra.json`.
+• Light/dark theme toggle.
+• Zero external Python dependencies — runs on the standard library alone.
 
 ## Folder structure
 
@@ -23,87 +27,88 @@ A JLPT frequency list compatible with the new Migaku extension sourced from step
 JLPT_Progress_NX/
 │
 ├── JLPT_Vocab.json
-├── jlpt_progress.py
+├── server.py
 │
-├── wordlists/
-│   ├── known.csv
-│   ├── learning.csv
-│   └── ignored.csv
+├── dashboard/
+│   ├── index.html
+│   ├── styles.css
+│   └── app.js
 │
-├── unknown_words.csv
-└── progress_chart.png
+└── wordlists/
+    ├── known.csv
+    ├── learning.csv
+    ├── ignored.csv
+    ├── tracked.csv      (optional)
+    └── extra.json       (optional)
 ```
 
 ## Installation
 
-### 1. Install the Migaku Anki Exporter
-
-You must have [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) installed and configured.  
-This exporter generates the `known.csv`, `learning.csv`, and `ignored.csv` files that this tracker uses.  
-Follow the setup instructions on that repository before running this tool.
-
-### 2. Download the tracker
-
-Download and extract your desired JLPT X level [JLPT_Progress_NX.zip](https://github.com/FerchusGames/JLPT-Migaku-Progress-Tracker/releases/tag/Release).
-
-<img width="1352" height="707" alt="msedge_1gwSTiHJTr" src="https://github.com/user-attachments/assets/c71bd020-a323-46eb-a779-71825df66ee8" />
+Install the [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and follow its setup instructions. It generates the `known.csv`, `learning.csv`, and `ignored.csv` files that this tracker uses.
 
 ## Usage
 
-Export and extract your Migaku wordlists ```.csv``` files using [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and place them inside the `wordlists/` folder.
+Export and extract your Migaku wordlists `.csv` files using [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) and place them inside the `wordlists/` folder.
 
 <img width="720" height="458" alt="msedge_RXSNqL497F" src="https://github.com/user-attachments/assets/353bad68-1520-4957-ad8d-dbf8a3ca6449" />
 
-Run the script from your terminal:
+Start the dashboard server from your terminal:
 
 ```
-python app.py
+python server.py
 ```
 
-It will:
-- Install the necessary libraries.
-- Check that the required files exist.  
-- Generate a pie chart (`progress_chart.png`).  
-- Save your unknown words to `unknown_words.csv`.  
-- Copy the first 500 unknown words to your clipboard. 
+Then open <http://localhost:8053> in your browser.
 
-Example output:
+On Windows you can also double-click `start_server.bat` to launch the server, and `stop_server.bat` to kill whatever process is listening on port 8053.
+
+Optional flags:
 
 ```
-📋 First 500 unknown words copied to clipboard (out of 3765 total).
-✅ Total JLPT N1 words: 8127
-Known (including Ignored): 4048
-Learning: 314
-Unknown: 3765
-Unknown words saved to: unknown_words.csv
-Chart saved to: progress_chart.png
+python server.py --port 9000   # serve on a different port
+python server.py --no-open     # don't auto-open the browser
 ```
 
-Chart:
+The server will:
+- Validate that `JLPT_Vocab.json`, `wordlists/`, and `dashboard/` exist.
+- Parse your wordlists and classify every JLPT word as known, learning, ignored, or unknown.
+- Serve the dashboard UI and a small JSON API (`/api/data`, `/api/words`).
+- Re-read your wordlists on every refresh, so editing a CSV and clicking refresh is enough to see updated progress.
 
-<img width="594" height="510" alt="progress_chart" src="https://github.com/user-attachments/assets/c6813a83-798d-42b8-a546-b7029a92d261" />
+### Manual overrides (`wordlists/extra.json`)
 
-Unknown words pasted in Migaku Clipboard:
+Migaku's parser sometimes can't isolate a JLPT entry as a single hoverable token (compound words, unusual readings, fixed expressions, etc.), which means there's no way to mark that exact word as known from inside Migaku — so it never makes it into your exported `known.csv` even though you actually know it.
 
-<img width="250" height="472" alt="image" src="https://github.com/user-attachments/assets/a19fe1ab-2b21-4300-8492-faadaaad998c" />
+`wordlists/extra.json` is the escape hatch for those cases. List the surface form (or reading) under the category you want it to count as, and the dashboard will treat it that way regardless of what the Migaku CSVs say:
 
+```json
+{
+  "known":    ["熟語1", "熟語2"],
+  "learning": [],
+  "ignored":  [],
+  "unknown":  []
+}
+```
+
+Entries here take priority over the CSV-derived classification, so you can also use it to fix the rare case where Migaku marked something incorrectly. The file is matched against both the surface and the reading of each JLPT entry, so either form works.
+
+### Exporting words
+
+Use the Export Words panel to select categories, level (with optional cumulative lower levels), katakana-only, tracked filter, max count, and clipboard randomization. Then click **Copy to Clipboard**, **Download CSV**, or **Download JSON**. The clipboard output pastes directly into Migaku Clipboard for batch sentence-card generation.
 
 ## Dependencies
 
-- matplotlib: chart generation  
-- pyperclip: clipboard support  
-
-Both will be installed automatically if missing.
+None. `server.py` runs entirely on the Python standard library.
 
 ## Notes
 
-This script was generated quickly using ChatGPT and may not be optimized or feature-complete.  
-It’s mainly intended as a personal utility for Migaku users who want a simple way to visualize their JLPT N1 progress.
+This dashboard was generated quickly with AI assistance and may not be optimized or feature-complete.
+It's mainly intended as a personal utility for Migaku users who want a simple way to visualize their JLPT progress.
 
-If you find it useful, feel free to improve or extend it.  
+If you find it useful, feel free to improve or extend it.
 
 ## Acknowledgements
 
 - [stephenmk/yomitan-jlpt-vocab](https://github.com/stephenmk/yomitan-jlpt-vocab) for the vocab list.
-- [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) for the export data. 
+- [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter) for the export data.
 - [Migaku](https://migaku.com/) for the language-learning tools that inspired this project.
