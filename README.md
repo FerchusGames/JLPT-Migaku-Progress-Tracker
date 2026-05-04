@@ -1,11 +1,11 @@
-# JLPT-Migaku-Progress-Tracker
+# JLPT-Migaku-Progress-Dashboard
 <img width="720" height="458" alt="msedge_5O7q93hK9z" src="https://github.com/user-attachments/assets/f6d0e06f-12ec-42fa-851b-6baa7b5885fd" />
 
 <img width="720" height="458" alt="msedge_Cs9JmByGO8" src="https://github.com/user-attachments/assets/a9634e6e-e856-477d-bfcd-205e4b66a895" />
 
 A small Python tool that visualizes your Japanese vocabulary progress using data from [SirOlaf/migaku-anki-exporter](https://github.com/SirOlaf/migaku-anki-exporter).
 
-It compares your exported Migaku wordlists with a JLPT vocabulary file and serves a local web dashboard that shows how many words you know, are learning, or haven't learned yet — across every JLPT level.
+It compares your exported Migaku wordlists with a JLPT vocabulary file and serves a local web dashboard that shows how many words you know, are learning, or haven't learned yet across every JLPT level.
 
 ##  Pairs well with
 ### ⭐ [JLPT-Migaku-Frequency-List](https://github.com/FerchusGames/JLPT-Migaku-Frequency-List) ⭐
@@ -13,13 +13,13 @@ A JLPT frequency list compatible with the new Migaku extension sourced from step
 
 ## Features
 
-• Local web dashboard with summary cards, progress table, donut chart, and per-level bar chart.
-• Cumulative or per-level views, plus a toggle to count ignored words as known.
-• Word browser with search and pagination across all JLPT levels.
-• Flexible export panel: filter by category, level, katakana-only, tracked status, and limit, then copy to clipboard or download as CSV/JSON.
-• Treats words in `ignored.csv` as known and respects manual category overrides via `extra.json`.
-• Light/dark theme toggle.
-• Zero external Python dependencies — runs on the standard library alone.
+- Local web dashboard with summary cards, progress table, donut chart, and per-level bar chart.
+- Cumulative or per-level views, plus a toggle to count ignored words as known.
+- Word browser with search and pagination across all JLPT levels.
+- Flexible export panel: filter by category, level, katakana-only, tracked status, and limit, then copy to clipboard or download as CSV/JSON.
+- Treats words in `ignored.csv` as known and respects manual category overrides via `extra.json`.
+- Light/dark theme toggle.
+- Zero external Python dependencies. Runs on the standard library alone.
 
 ## Folder structure
 
@@ -91,7 +91,7 @@ The server will:
 
 ### Manual overrides (`wordlists/extra.json`)
 
-Migaku's parser sometimes can't isolate a JLPT entry as a single hoverable token (compound words, unusual readings, fixed expressions, etc.), which means there's no way to mark that exact word as known from inside Migaku — so it never makes it into your exported `known.csv` even though you actually know it.
+Migaku's parser sometimes can't isolate a JLPT entry as a single hoverable token (compound words, unusual readings, fixed expressions, etc.), which means there's no way to mark that exact word as known from inside Migaku, so it never makes it into your exported `known.csv` even though you actually know it.
 
 `wordlists/extra.json` is the escape hatch for those cases. List the surface form (or reading) under the category you want it to count as, and the dashboard will treat it that way regardless of what the Migaku CSVs say:
 
